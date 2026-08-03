@@ -4,6 +4,7 @@ import { TaskCreate } from "./endpoints/taskCreate";
 import { TaskDelete } from "./endpoints/taskDelete";
 import { TaskFetch } from "./endpoints/taskFetch";
 import { TaskList } from "./endpoints/taskList";
+import agent from "./endpoints/agent";
 
 // Start a Hono app
 const app = new Hono<{ Bindings: Env }>();
@@ -18,6 +19,9 @@ openapi.get("/api/tasks", TaskList);
 openapi.post("/api/tasks", TaskCreate);
 openapi.get("/api/tasks/:taskSlug", TaskFetch);
 openapi.delete("/api/tasks/:taskSlug", TaskDelete);
+
+// Mount agent routes (function handlers, not OpenAPI classes)
+app.route("/api/agent", agent);
 
 // You may also register routes for non OpenAPI directly on Hono
 // app.get('/test', (c) => c.text('Hono!'))
