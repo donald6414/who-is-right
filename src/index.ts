@@ -1,5 +1,6 @@
 import { fromHono } from "chanfana";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { TaskCreate } from "./endpoints/taskCreate";
 import { TaskDelete } from "./endpoints/taskDelete";
 import { TaskFetch } from "./endpoints/taskFetch";
@@ -8,6 +9,17 @@ import agent from "./endpoints/agent";
 
 // Start a Hono app
 const app = new Hono<{ Bindings: Env }>();
+
+// Allow the Ask Kai frontend (and local Vite) to call this API from the browser
+app.use(
+	"*",
+	cors({
+		origin: "*",
+		allowHeaders: ["Content-Type", "x-session-id"],
+		allowMethods: ["GET", "POST", "OPTIONS"],
+		exposeHeaders: ["session-id", "x-session-id"],
+	}),
+);
 
 // Setup OpenAPI registry
 const openapi = fromHono(app, {
