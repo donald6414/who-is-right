@@ -1,12 +1,14 @@
 import { Context } from "hono";
 
 export const connect = async (c: Context<{ Bindings: Env }>) => {
-    // Get the incoming call from the request body
+	const headers = Object.fromEntries(c.req.raw.headers);
+	const body = await c.req.parseBody();
 
-    const body = await c.req.parseBody();
-    console.log(body);
+	// Shows up in Cloudflare Workers Observability / wrangler tail
+	console.log("twilio incoming-call headers", headers);
+	console.log("twilio incoming-call body", body);
 
-    return c.json({
-        message: "Hello, world!",
-    });
+	return c.json({
+		message: "Hello, world!",
+	});
 };
