@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 /**
- * A conversation thread for Kai (one dispute session).
+ * A conversation thread for Kai/Aava (web chat or Twilio voice session).
  */
 export const chatRooms = sqliteTable(
 	"chat_rooms",
@@ -10,7 +10,7 @@ export const chatRooms = sqliteTable(
 		id: text()
 			.primaryKey()
 			.$defaultFn(() => crypto.randomUUID()),
-		/** Client/browser session that owns this room. */
+		/** Client/browser session or Twilio CallSid that owns this room. */
 		sessionId: text().notNull(),
 		/** Short label for the dispute, e.g. "Messi vs Ronaldo". */
 		title: text(),
@@ -18,8 +18,22 @@ export const chatRooms = sqliteTable(
 		status: text({ enum: ["active", "archived", "closed"] })
 			.notNull()
 			.default("active"),
-		/** Which agent is handling this room. */
+		/** Which agent is handling this room (kai = web judge, aava = voice clerk). */
 		agent: text().notNull().default("kai"),
+		/** How the caller reached court: web UI or Twilio voice. */
+		channel: text({ enum: ["web", "voice"] }).notNull().default("web"),
+		/** Twilio ConversationRelay / Voice fields (null for web chats). */
+		callSid: text(),
+		accountSid: text(),
+		twilioSessionId: text(),
+		parentCallSid: text(),
+		fromPhone: text(),
+		toPhone: text(),
+		forwardedFrom: text(),
+		callerName: text(),
+		direction: text(),
+		callStatus: text(),
+		callType: text(),
 		createdAt: integer({ mode: "timestamp_ms" })
 			.notNull()
 			.default(sql`(unixepoch() * 1000)`),
@@ -28,7 +42,11 @@ export const chatRooms = sqliteTable(
 			.default(sql`(unixepoch() * 1000)`)
 			.$onUpdateFn(() => new Date()),
 	},
-	(table) => [uniqueIndex("chat_rooms_session_id_uidx").on(table.sessionId)],
+	(table) => [
+		uniqueIndex("chat_rooms_session_id_uidx").on(table.sessionId),
+		index("chat_rooms_call_sid_idx").on(table.callSid),
+		index("chat_rooms_from_phone_idx").on(table.fromPhone),
+	],
 );
 
 /**
@@ -64,6 +82,10 @@ export const chats = sqliteTable(
 		errorMessage: text(),
 		/** Absolute order within the room (1, 2, 3…). */
 		sequence: integer().notNull(),
+		/** Speech / UI language hint from ConversationRelay (e.g. en-US). */
+		lang: text(),
+		/** Denormalized CallSid for voice-message lookups. */
+		callSid: text(),
 		createdAt: integer({ mode: "timestamp_ms" })
 			.notNull()
 			.default(sql`(unixepoch() * 1000)`),
@@ -75,6 +97,7 @@ export const chats = sqliteTable(
 	(table) => [
 		index("chats_chat_room_id_idx").on(table.chatRoomId),
 		uniqueIndex("chats_room_sequence_uidx").on(table.chatRoomId, table.sequence),
+		index("chats_call_sid_idx").on(table.callSid),
 	],
 );
 
