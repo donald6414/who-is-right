@@ -6,6 +6,7 @@ import { TaskDelete } from "./endpoints/taskDelete";
 import { TaskFetch } from "./endpoints/taskFetch";
 import { TaskList } from "./endpoints/taskList";
 import agent from "./endpoints/agent";
+import twilio from "./endpoints/twilio";
 
 // Start a Hono app
 const app = new Hono<{ Bindings: Env }>();
@@ -34,6 +35,9 @@ openapi.delete("/api/tasks/:taskSlug", TaskDelete);
 
 // Mount agent routes (function handlers, not OpenAPI classes)
 app.route("/api/agent", agent);
+
+// Mount twilio routes
+app.route("/api/twilio", twilio);
 
 // You may also register routes for non OpenAPI directly on Hono
 // app.get('/test', (c) => c.text('Hono!'))
