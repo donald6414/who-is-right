@@ -26,7 +26,7 @@ export const connect = async (c: Context<{ Bindings: Env }>) => {
 		` language="en-US"` +
 		` ttsProvider="Google"` +
 		` voice="en-US-Journey-F"` +
-		` welcomeGreeting="Hello, I am Aava. How can I help you?"` +
+		` welcomeGreeting="Hi! I'm Aava, your sweet little assistant at Ask Kai. Court is open, vibes are high, and I'm here to help you settle the beef. What's going on, tell me everything!"` +
 		`/>` +
 		`</Connect>` +
 		`</Response>`;
