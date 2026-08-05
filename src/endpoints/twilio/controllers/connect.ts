@@ -22,7 +22,7 @@ export const connect = async (c: Context<{ Bindings: Env }>) => {
                         <Connect>
 
                             <ConversationRelay
-                                url="wss://who-is-right.dondonald971.workers.dev/api/twilio/ws"
+                                url="wss://who-is-right.dondonald971.workers.dev/api/twilio/ws/"
                                 welcomeGreeting="Hello, I am Aava. How can I help you?"
                             />
 
